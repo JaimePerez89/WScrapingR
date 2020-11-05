@@ -142,7 +142,8 @@ for (i in BD_peliculas$id_pelicula) {
 
 
 ```{r}
-target_url <- i
+# target_url <- "https://www.filmaffinity.com/es/film137887.html"
+target_url <- "https://www.filmaffinity.com/es/film867354.html"
 
 target_page <- read_html(target_url)
 ```
@@ -151,9 +152,248 @@ target_page <- read_html(target_url)
 ```{r}
 titulo_original <- target_page %>%
         html_node("dl.movie-info") %>%
-        html_nodes("dd") %>%
-        html_text()
+        html_nodes("dt") %>%
+        html_text(trim = TRUE)
 
 titulo_original
 ```
+
+
+```{r}
+cabecera <- target_page %>%
+        html_node("dl.movie-info") %>%
+        html_nodes("dt") %>%
+        html_text(trim = TRUE)
+
+info <- target_page %>%
+        html_node("dl.movie-info") %>%
+        html_nodes("dd") %>%
+        html_text(trim = TRUE)
+
+BD_pelicula_id <- data.frame(cabecera, info)
+
+# Titulo original
+titulo_original <- BD_pelicula_id %>% filter(cabecera == "Título original") %>% pull(info)
+if(length(titulo_original) == 0){
+  titulo_original <- NA
+}
+titulo_original
+```
+
+```{r}
+
+# Año
+anio <- BD_pelicula_id %>% filter(cabecera == "Año") %>% pull(info)
+if(length(anio) == 0){
+  anio <- NA
+}
+anio
+```
+
+```{r}
+
+# Duración
+duracion <- BD_pelicula_id %>% filter(cabecera == "Duración") %>% pull(info)
+if(length(duracion) == 0){
+  duracion <- NA
+}
+duracion
+```
+
+```{r}
+
+# País
+pais <- BD_pelicula_id %>% filter(cabecera == "País") %>% pull(info)
+if(length(pais) == 0){
+  pais <- NA
+}
+pais
+```
+
+```{r}
+
+# Dirección
+direccion <- BD_pelicula_id %>% filter(cabecera == "Dirección") %>% pull(info)
+if(length(direccion) == 0){
+  direccion <- NA
+}
+direccion
+```
+
+```{r}
+
+# Guion
+guion <- BD_pelicula_id %>% filter(cabecera == "Guion") %>% pull(info)
+if(length(guion) == 0){
+  guion <- NA
+}
+guion
+```
+
+```{r}
+
+# Música
+musica <- BD_pelicula_id %>% filter(cabecera == "Música") %>% pull(info)
+if(length(musica) == 0){
+  musica <- NA
+}
+musica
+```
+
+```{r}
+
+# Fotografía
+fotografia <- BD_pelicula_id %>% filter(cabecera == "Fotografía") %>% pull(info)
+if(length(fotografia) == 0){
+  fotografia <- NA
+}
+fotografia
+```
+
+```{r}
+
+# Reparto
+reparto <- BD_pelicula_id %>% filter(cabecera == "Reparto") %>% pull(info)
+if(length(reparto) == 0){
+  reparto <- NA
+}
+reparto
+```
+
+```{r}
+
+# Productora
+productora <- BD_pelicula_id %>% filter(cabecera == "Productora") %>% pull(info)
+if(length(productora) == 0){
+  productora <- NA
+}
+productora
+```
+
+```{r}
+
+# Género
+genero <- BD_pelicula_id %>% filter(cabecera == "Género") %>% pull(info)
+if(length(genero) == 0){
+  genero <- NA
+}
+genero
+```
+
+```{r}
+
+# Sinopsis
+sinopsis <- BD_pelicula_id %>% filter(cabecera == "Sinopsis") %>% pull(info)
+if(length(sinopsis) == 0){
+  sinopsis <- NA
+}
+sinopsis
+```
+
+
+```{r}
+# Puntuacion
+
+puntuacion_media <- target_page %>% 
+  html_nodes(xpath = '//*[@id="movie-rat-avg"]') %>%
+  html_text(trim = TRUE)
+
+puntuacion_media
+
+```
+
+```{r}
+# Votos
+
+votos <- target_page %>% 
+  html_nodes(xpath = '//*[@id="movie-count-rat"]/span') %>%
+  html_text(trim = TRUE)
+
+votos
+
+```
+
+```{r}
+# Mejor puntuacion
+
+mejor_puntuacion <- target_page %>% 
+  html_nodes(xpath = '//*[@id="rat-avg-container"]/meta[1]') %>%
+  html_attr("content")
+
+mejor_puntuacion
+
+```
+
+```{r}
+# Peor puntuacion
+
+peor_puntuacion <- target_page %>% 
+  html_nodes(xpath = '//*[@id="rat-avg-container"]/meta[2]') %>%
+  html_attr("content")
+
+peor_puntuacion
+
+```
+
+
+```{r}
+# Número de críticas
+
+num_criticas <- target_page %>% 
+  html_nodes(xpath = '//*[@id="rat-avg-container"]/meta[3]') %>%
+  html_attr("content")
+
+num_criticas
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

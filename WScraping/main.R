@@ -28,32 +28,26 @@ for (i in generos_disponibles){
 write.csv(BD_peliculas_top, file = "./WScraping/BD_inicial_top30.csv", row.names = FALSE)
 
 
+
 # Para cada uno de los id obtenidos, se extrae la información relacionada con la película
-# for (j in BD_peliculas_top$id_pelicula){
-#         target_page <- read_html(target_url)
-#         
-# }
-
-
-
-
-# Ejemplo para no ejecutarlo todo junto
-id_url_extract <- BD_peliculas_top$id_pelicula[4]
-
-BD_id_prueba <- scrap_film(id_url = id_url_extract)
-BD_id_prueba
-
-BD_peliculas_full <- data.frame()
-# COjo solo 5 peliculas
-for (m in BD_peliculas_top$id_pelicula[1:8]){
-        BD_id_scrap <- scrap_film(id_url = m)
-        BD_peliculas_full <- bind_rows(BD_peliculas_full, BD_id_scrap)
-        Sys.sleep(1)
+BD_peliculas <- data.frame()  # Creamos un dataframe vacio para ir almancenando la información
+for (m in BD_peliculas_top$id_pelicula){
+        BD_id <- scrap_film(id_url = m)
+        BD_peliculas <- rbind(BD_peliculas, BD_id)
+        Sys.sleep(0.5)
 }
 
-BD_peliculas_full
+# Creamos un csv con los resultados
+write.csv(BD_peliculas, file = "./WScraping/BD_peliculas.csv", row.names = FALSE)
 
 
-BD_peliculas_final <- right_join(BD_peliculas_top, BD_peliculas_full, by = "id_pelicula")
+# Unimos los dos dataframes en una único archivo, que será nuestra base de datos final
+# Para ello eliminamos previamente las películas duplicadas
+BD_peliculas_clean <- BD_peliculas %>% distinct()
+BD_peliculas_full <- merge(BD_peliculas_top, BD_peliculas_clean, by = "id_pelicula")
 
-write.csv2(BD_peliculas_final, file = "./WScraping/BD_peliculas.csv", row.names = FALSE)
+# Lo almacenamos en un archivo
+write.csv(BD_peliculas_full, file = "./WScraping/BD_peliculas_full.csv", row.names = FALSE)
+
+
+# Proceso de limpieza de la Base de datos

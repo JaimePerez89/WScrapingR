@@ -1,5 +1,6 @@
 # Hacemos accesibles las funciones creadas
 source("./WScraping/scrap.R")
+source("./WScraping/clean_df.R")
 
 
 # Cargamos las librerías. En caso de no tenerlas instaladas, se descargarán
@@ -25,8 +26,7 @@ for (i in generos_disponibles){
 
 
 # Creamos un csv con los resultados
-write.csv(BD_peliculas_top, file = "./WScraping/BD_inicial_top30.csv", row.names = FALSE)
-
+# write.csv(BD_peliculas_top, file = "./WScraping/BD_inicial_top30.csv", row.names = FALSE)
 
 
 # Para cada uno de los id obtenidos, se extrae la información relacionada con la película
@@ -38,7 +38,7 @@ for (m in BD_peliculas_top$id_pelicula){
 }
 
 # Creamos un csv con los resultados
-write.csv(BD_peliculas, file = "./WScraping/BD_peliculas.csv", row.names = FALSE)
+# write.csv(BD_peliculas, file = "./WScraping/BD_peliculas.csv", row.names = FALSE)
 
 
 # Unimos los dos dataframes en una único archivo, que será nuestra base de datos final
@@ -47,7 +47,11 @@ BD_peliculas_clean <- BD_peliculas %>% distinct()
 BD_peliculas_full <- merge(BD_peliculas_top, BD_peliculas_clean, by = "id_pelicula")
 
 # Lo almacenamos en un archivo
-write.csv(BD_peliculas_full, file = "./WScraping/BD_peliculas_full.csv", row.names = FALSE)
+# write.csv(BD_peliculas_full, file = "./WScraping/BD_peliculas_full.csv", row.names = FALSE)
 
 
 # Proceso de limpieza de la Base de datos
+BD_clean_top30 <- clean_BD(BD_peliculas_full)
+
+# Genero el csv final
+write.csv2(BD_clean_top30, "./WScraping/BD_filmaffinity_top30.csv", row.names = FALSE)

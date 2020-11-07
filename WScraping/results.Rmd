@@ -14,6 +14,21 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r include=FALSE}
+# Cargamos las librerías. En caso de no tenerlas instaladas, se descargarán
+PACKAGES <- c("dplyr", "rvest", "ggplot2", "tibble", "knitr", "stringr")
+inst <- match(PACKAGES, .packages(all=TRUE))
+need <- which(is.na(inst))
+if (length(need) > 0) install.packages(PACKAGES[need], repos = "http://cran.us.r-project.org")
+lapply(PACKAGES, require, character.only=T)
+```
+
+```{r Lectura_datos}
+data <- read.csv2("./WScraping/BD_filmaffinity_top30.csv")
+```
+
+
+
 # Contexto
 
 XXXXX

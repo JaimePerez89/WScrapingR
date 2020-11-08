@@ -1,7 +1,7 @@
 ---
 title: "Results IMDB"
-author: "jperezord & anahubel"
-date: "30/10/2020"
+author: "Jaime Pérez & Ana Hubel"
+date: "08/11/2020"
 output:
   html_document:
     toc: yes
@@ -11,12 +11,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 ```
 
 ```{r include=FALSE}
 # Cargamos las librerías. En caso de no tenerlas instaladas, se descargarán
-PACKAGES <- c("dplyr", "rvest", "ggplot2", "tibble", "knitr", "stringr")
+PACKAGES <- c("dplyr", "rvest", "ggplot2", "tibble", "knitr", "stringr", "stringi")
 inst <- match(PACKAGES, .packages(all=TRUE))
 need <- which(is.na(inst))
 if (length(need) > 0) install.packages(PACKAGES[need], repos = "http://cran.us.r-project.org")
@@ -24,25 +24,249 @@ lapply(PACKAGES, require, character.only=T)
 ```
 
 ```{r Lectura_datos}
-data <- read.csv2("./WScraping/BD_filmaffinity_top30.csv")
+BD_peliculas <- read.csv2("~/Downloads/BD_filmaffinity_top30.csv")
 ```
 
 
 
 # Contexto
 
-XXXXX
+Filmaffinity es un sitio web español dedicado al cine que cuenta con una gran cantidad de películas, documentales, cortometrajes, mediometrajes y series de televisión. El funcionamiento del sitio web se basa en una puntuación calculada como la media de las puntuaciones recibidas por los usuarios, que además pueden publicar sus críticas. El objetivo de la creación de nuestra base de datos es obtener información relacionada con las películas más destacabales de cada categoria que se encuentra en la página.
 
 # Título dataset
-
+La base de datos  recibe el nombre de **BD_filmaffinity_top30** y engloba una serie de variables relacionadas con las películas que se encuentran en el top 30 de cada género de la página Filmaffinity.
 
 # Descripción dataset y contenidos
 
-Estadísticas básicas, tipos, ....
+La base de datos incluye las siguientes variables:
 
-# Representación gráfica
+- *id*: número de identificación de las películas incluidas en la base de datos.
 
+- *genero_top30*: género principal al que pertenece la película. 
 
+- *posicion_top30*: posición en la que se encuentra cada película en relación con el género principal.
+
+- *titulo*: nombre de la pelicula traducido al castellano.
+
+- *titulo_VO*: título original de la película.
+
+- *duracion*: duración de la película en minutos.
+
+- *pais*: pais en el que se ha producido la película.
+
+- *puntuacion_media*: puntuación media de las votaciones recibidas por parte de la película.
+
+- *votos*: número de votos que ha recibido la película.
+
+- *num_criticas*: número de críticas que ha recibido la película.
+
+- *mejor_puntuacion*: puntuación más alta que recibe la película.
+
+- *peor_puntuacion*: puntuación más baja que recibe la película.
+
+- *direccion*: directores de la película.
+
+- *guion*: guionistas de la película.
+
+- *musica*: productores de la música de la película.
+
+- *fotografia*: encargados de las fotografías de la película.
+
+- *reparto*: reparto de la película.
+
+- *productora*: estudio encargado de la producción de la película.
+
+- *sinopsis*: resumen de la película.
+
+- *url*: enlace en el que se encuentra la película.
+
+- *tag1* a *tag13*: categorías secundarias asociadas a las películas.
+
+## Representación gráfica
+
+```{r representacion grafica general}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("EBImage")
+
+library(EBImage)
+
+img = readImage("~/Downloads/Untitled Document (1).png")
+display(img, method = "raster")
+```
+
+## Análisis de contenidos
+En primer lugar, vamos a obtener los países en los que se obtienen las mejores puntuaciones según los usuarios.
+
+```{r summary bd, warning=FALSE}
+bd_pais <- BD_peliculas %>%
+  mutate(genero = as.factor(genero_top30)) %>%
+  group_by(pais) %>%
+  summarize(mean_puntuacion = mean(puntuacion_media), mean_criticas = mean(num_criticas), mean_votos = mean(votos)) %>%
+  arrange(desc(mean_puntuacion))
+head(bd_pais)
+```
+
+En la tabla se puede observar que el país que obtiene las mejores puntuaciones es Italia, seguida de Australia, Alemania, Nueva Zelanda, Mexico y Portugal. Sin embargo, este dato puede estar sesgado por el número de votos o el número de críticas. Ya que, como se observa, los números de críticas y votos medios están muy descompensados en los distintos países.
+
+Por ello, a continuación vamos a realizar un análisis más exhaustivo para tratar de determinar la influencia de estas variables sobre la mejor puntuación.
+
+```{r grafica bd pais}
+ggplot(bd_pais, aes(x = mean_puntuacion, y = mean_criticas, size = mean_votos, color = pais)) +
+  geom_point()
+```
+
+A priori, en la gráfica no se puede observar ningún sesgo o relación entre las variables; no hay un patrón definido. El único hecho que puede ser destacable es que las películas con puntuaciones más altas reciben un mayor número de críticas y votos. 
+
+A continuación, vamos a mostrar las 6 mejores categorias en función de la puntuación obtenida.
+
+```{r bd genero}
+bd_genero <- BD_peliculas %>%
+  group_by(genero_top30) %>%
+  summarize(mean_puntuacion = mean(puntuacion_media), mean_ncriticas = mean(num_criticas), mean_votos = mean(votos)) %>%
+  arrange(desc(mean_puntuacion))
+
+head(bd_genero)
+```
+
+Como se puede observar, la categoria mejor valorada es el Drama. A continuación de esta podemos encontrar la Comedia, la Intriga, Thriller, Romance y el Cine Negro. De igual manera que ocurría en el caso anterior, en el que realizábamos un análisis por países, la media de número de críticas y votos, está muy descompensado entre las películas asociadas a cada categoria.
+
+```{r grafica db genero}
+ggplot(bd_genero, aes(x = mean_puntuacion, y = mean_ncriticas, size = mean_votos, color = genero_top30)) + 
+  geom_point()
+```
+
+En la gráfica podemos observar que la mayor parte de las películas tienen un alto número de votos en función del género. La mayor parte de las películas con un bajo número de votos, también tienen menor número de críticas; sin embargo, no destacan por una puntuación más baja.
+
+A continuación, vamos a realizar un análisis inferencial para determinar si dichas variables tienen una relación estadísticamente significativa entre ellas. Para ello, vamos a realizar un ANCOVA con el objetivo de hallar una posible relación entre el número de críticas, el número de votos, el género y el país respecto a la puntuación media obtenida.
+
+```{r modelo genero}
+modelo1 <- aov(puntuacion_media ~ votos + num_criticas + genero_top30 + pais, data  = BD_peliculas)
+summary(modelo1)
+```
+
+En este caso, la modelización de las variables nos indica que todas las variables resultan significativas en el modelo. Es decir, la puntuación media depende tanto de los votos recibidos, el número de críticas, el género y el país del que procede de forma estadísticamente significativa.
+
+Otro análisis que parece interesante puede ser la relación que puede haber entre la longitud de la sinopsis de cada película y el número de votos o la puntuación que recibe. Es decir, ¿puede ser que las personas estén viendo o puntuando, de forma inconsciente, películas que tengan unos resumenes más elaborados?
+
+```{r sinopsis}
+bd_sinopsis <- BD_peliculas %>%
+  mutate(sinopsis2 = stri_enc_toutf8(sinopsis, is_unknown_8bit = TRUE, validate = FALSE), len_sinopsis = str_length(sinopsis2))
+```
+
+```{r grafica sinopsis}
+ggplot(bd_sinopsis, aes(x = len_sinopsis, y = puntuacion_media, size = votos)) +
+  geom_point()
+```
+
+En vista de la gráfica, podemos deducir que la mayor parte de los resumenes se encuentran entre una longitud de 300 y 900 caracteres. No parece haber una relación clara con el número de votos, ni con la puntuación media. De todas formas, vamos a realizar un análisis de ANCOVA para ver si la puntuación media se ve influenciada de forma estadísticamente significativa por la longitud de la sinopsis, incluyendo las variables mencionadas anteriormente para una modelización más completa..
+
+En primer lugar, vamos a modelizar el número de votos en función de la longitud de la sinopsis.
+
+```{r aov n votos}
+modelo2 <- aov(votos ~ len_sinopsis + num_criticas + puntuacion_media + genero_top30 + pais, data = bd_sinopsis)
+summary(modelo2)
+```
+
+El análisis del número de votos, en presencia del resto de variables, nos indica que la longitud del resumen tiene un efecto estadísticamente significativo sobre el número de votos que recibe cada película.
+
+A continuación, vamos a proceder a realizar el mismo tipo de modelización con la puntuación media de cada película como variable respuesta.
+
+```{r aov puntuacion}
+modelo3 <- aov(puntuacion_media ~ len_sinopsis + votos + num_criticas + genero_top30 + pais, data = bd_sinopsis)
+summary(modelo3)
+```
+
+Una vez más, todas las variables resultan significativas en el análisis. Es decir, adicionalmente a lo anteriormente comentado, la longitud del resumen parece tener un efecto sobre la puntuación recibida. 
+
+Por último, vamos a realizar una serie de representaciones en las que mostraremos los tags asociados a cada género de película. Posteriormente, vamos a centrarnos de forma más detallada en el género *thriller*.
+
+En primer lugar, vamos a mostrar el primer tag en función de todos los géneros, para ver cuáles son los más frecuentes.
+
+```{r analisis tags}
+bd_tags <- BD_peliculas %>%
+  select(genero_top30, tag_1, tag_2, tag_3, tag_4, tag_5, tag_6, tag_7, tag_8, tag_9, tag_10, tag_11, tag_12, tag_13) %>%
+  group_by(genero_top30, tag_1) %>%
+    summarise(n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  arrange(desc(freq))
+bd_tags[1:10,]
+```
+
+De los resultados obtenidos, se puede observar que prácticamente todas las categorías destacan por poseer un tag igual a su género, excepto el género infantil que osee un tag de animación.
+
+A continuación, vamos a mostrar el segundo tag.
+
+```{r analisis tags 2}
+bd_tags2 <- BD_peliculas %>%
+  select(genero_top30, tag_1, tag_2, tag_3, tag_4, tag_5, tag_6, tag_7, tag_8, tag_9, tag_10, tag_11, tag_12, tag_13) %>%
+  group_by(genero_top30, tag_2) %>%
+    summarise(n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  arrange(desc(freq))
+bd_tags2[1:10,]
+```
+
+En este caso, vemos algo más de diversidad. El género bélico tiene como tag más repetido el drama, el cine negro la intrifa, la animación el tag de drama y el género infantil el tag fantástico.
+
+De igual manero, se muestra el tercer tag.
+
+```{r analisis tags 3}
+bd_tags3 <- BD_peliculas %>%
+  select(genero_top30, tag_1, tag_2, tag_3, tag_4, tag_5, tag_6, tag_7, tag_8, tag_9, tag_10, tag_11, tag_12, tag_13) %>%
+  group_by(genero_top30, tag_3) %>%
+    summarise(n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  arrange(desc(freq))
+bd_tags3[1:10,]
+```
+
+De cara a este tag, cabe destacar que el número de tags desciende de forma notable respecto a los dos anteriores: cada vez encontramos más tags vacíos para las películas. También cabe destacar una mayor diversidad: el género ya no coincide con el valor del tag.
+
+De igual manera, se muestran los resultados del cuarto y quinto tag.
+
+```{r analisis tags 4}
+bd_tags4 <- BD_peliculas %>%
+  select(genero_top30, tag_1, tag_2, tag_3, tag_4, tag_5, tag_6, tag_7, tag_8, tag_9, tag_10, tag_11, tag_12, tag_13) %>%
+  group_by(genero_top30, tag_4) %>%
+    summarise(n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  arrange(desc(freq))
+bd_tags4[1:10,]
+```
+
+```{r analisis tags 5}
+bd_tags5 <- BD_peliculas %>%
+  select(genero_top30, tag_1, tag_2, tag_3, tag_4, tag_5, tag_6, tag_7, tag_8, tag_9, tag_10, tag_11, tag_12, tag_13) %>%
+  group_by(genero_top30, tag_5) %>%
+    summarise(n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  arrange(desc(freq))
+bd_tags5[1:10,]
+```
+
+De la información mostrada, podemos extraer que la mayoría de los tags más comunes son los correspondientes al mismo género al que pertence la película. También se puede observar que los principales tags se hallan en los primeros, conforme aumentamos de número cada vez obtenemos más tags vacíos.
+
+Por último, vamos a centrarnos en el primer y segundo tag asociado al género thriller. La elección de estos tags se hace porque, como acabamos de mencionar, son los tags más completos y con menor número de valores vacíos.
+
+```{r analisis tag thriller}
+bd_thriller <- BD_peliculas %>%
+  select(genero_top30, tag_1, tag_2, tag_3, tag_4, tag_5, tag_6, tag_7, tag_8, tag_9, tag_10, tag_11, tag_12, tag_13) %>%
+  filter(genero_top30 == "Thriller")
+
+ggplot(bd_thriller, aes(tag_1)) +
+  geom_bar()
+```
+
+Como hemos comentado anteriormente, se observa que el tag más repetido es el del thriller. A continuación, destacan los tags de cine negro, intriga y drama. por último, de forma irrelevante encontramos los tags de acenturas, terror y los vacíos. 
+
+```{r grafica 2 tag}
+ggplot(bd_thriller, aes(tag_2)) +
+  geom_bar()
+```
+
+En el segundo tag, y de igual forma que en el caso anterior, el tag más repetido es el de thriller.  Posteriormente destacan los tags de intriga y drama. En este caso, los valores vacíos son más numerosos que en el caso anterior. Por último, el tag menos importante es el del crimen.
 
 # Agradecimientos
 
@@ -50,11 +274,37 @@ Estadísticas básicas, tipos, ....
 
 # Inspiración
 
+La obtención de esta base de datos puede resultar interesante para la gente aficionada al cine, tanto expertos como no expertos. Con ella se pretende satisfacer la curiosidad de aquellas personas que, pese a tener delante el ranking de películas, no se termina de fiar del mismo o pretende indagar un poco más para ver qué características influyen en que una película se halle en una determinada posición o reciba una determinada puntuación. Es decir, se puede utilizar para responder a preguntas como: 
 
+**¿En qué países se producen las mejores películas? **
+
+**¿Qué generos reciben unas puntuaciones más elevadas?** 
+
+**¿Cómo se relaciona el número de votos y el de críticas con la puntuación obtenida?** 
+
+**¿Tiene algo que ver la longitud de la sinopsis con el número de votos o la puntuación que recibe una película?** 
+
+**¿Qué tags se encuentran más relacionados con cada género de película?**
+
+Es decir, el análisis de dicha base de datos pretende establecer relaciones entre las variables que pueden estar influyendo en la puntuación o posición de las películas. En conclusión, la principal pregunta a la que se pretende responder es 
+
+**¿Están esas películas en esa posición porque de verdad son muy buenas o hay algún tipo de sesgo que las hace estar ahí?**
+
+Por último, además de las variables que se analizan en el presente estudio, se incluyen muchas otras para que aquellos que tengan curiosidad y algo de imaginación intenten buscar relaciones entre las mismas.
 
 
 # Licencia
 
-
+Se ha elegido la licencia MIT para el software desarrollado. Esta licencia no tiene restricciones, permite el uso, copia, modificación, integración con otro software, publicación, distribución, sublicenciamiento y uso comercial del código. Por otro lado, el dataset obtenido mediante el uso del software se encuentran bajo licencia creative commons by-nc-sa 4.0. Esta licencia permite copiar y redistribuir el material en cualquier medio o formato y adaptarlo o modificarlo bajo ciertas condiciones (https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Dataset
+
+El DOI correspondiente a la base de datos es http://doi.org/10.5281/zenodo.4256706
+
+# Tabla de contribuciones al trabajo
+
+| Contribuciones              | Firma     |
+|-----------------------------|-----------|
+| Investigación previa        | J.P, A.H  |
+| Redacción de las respuestas | J.P, A.H  |
+| Desarrollo código           | J.P, A.H  |

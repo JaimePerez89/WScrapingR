@@ -1,5 +1,5 @@
 ---
-title: "Resultados WebScrapping Filmaffinity"
+title: "Results IMDB"
 author: "Jaime Pérez & Ana Hubel"
 date: "08/11/2020"
 output:
@@ -38,7 +38,9 @@ La base de datos  recibe el nombre de **BD_filmaffinity_top30** y engloba una se
 
 # Descripción dataset y contenidos
 
-La base de datos incluye las siguientes variables:
+La base de datos se ha creado empleando la técnica *web scrapping*. Esta técnica se ha aplicado a fecha de 5 de noviembre del 2020 (última actualización), por lo que las películas incluidas son las que se hallaban en la página hasta esa fecha. 
+
+La base de datos engloba películas desde el año 1902 hasta el año 2020, incluye las siguientes variables que describen características de las mismas:
 
 - *id*: número de identificación de las películas incluidas en la base de datos.
 

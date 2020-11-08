@@ -29,10 +29,13 @@ En conclusión, la principal pregunta a la que se pretende responder es *¿Está
 # Contenido del repositorio
 
 * WScraping
+    - data_procesos_intermedios: contiene bases de datos intermedias que se han ido limpiando/ajustando hasta llegar a nuestra base de datos final.
     - main.R: fichero que ejecuta todo el proceso de carga y limpieza
     - scrap.R: contiene el programa que descarga los archivos de la página de imbd
     - clean_df.R: contiene el código que limpia el dataframe y genera el .csv final
     - results.Rmd: este fichero da respuesta a los principales objetivos y requisitos de la práctica. Se carga y analiza el dataframe limpio. Además, se presenta el contexto en el que se ha recopilado la información, se realizan representaciones gráficas del contenido, estadísticas básicas y descripciones de las variables, resultados de correlaciones, clasificaciones, etc.
+    - results.html: documento html en el que se recoge el informe final de la práctica.
+    - BD_filmaffinity_top30.csv: base de datos final generada en main.R
 
 * test: contiene ficheros donde se realizan pruebas de scraping previas a la generación de los ficheros principales.
 

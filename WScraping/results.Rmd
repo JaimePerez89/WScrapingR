@@ -1,13 +1,14 @@
 ---
-title: "Results IMDB"
+title: "PRAC1 Tipología - Filmaffinity scraping"
 author: "Jaime Pérez & Ana Hubel"
 date: "08/11/2020"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     toc: yes
-    toc_float: true
-    number_sections: true
-
+    toc_float: yes
+    number_sections: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
 ```{r include=FALSE}
 # Cargamos las librerías. En caso de no tenerlas instaladas, se descargarán
-PACKAGES <- c("dplyr", "rvest", "ggplot2", "tibble", "knitr", "stringr", "stringi")
+PACKAGES <- c("dplyr", "rvest", "ggplot2", "tibble", "knitr", "stringr", "stringi", "BiocManager")
 inst <- match(PACKAGES, .packages(all=TRUE))
 need <- which(is.na(inst))
 if (length(need) > 0) install.packages(PACKAGES[need], repos = "http://cran.us.r-project.org")
@@ -24,7 +25,7 @@ lapply(PACKAGES, require, character.only=T)
 ```
 
 ```{r Lectura_datos}
-BD_peliculas <- read.csv2("~/Downloads/BD_filmaffinity_top30.csv")
+BD_peliculas <- read.csv2("./WScraping/BD_filmaffinity_top30.csv")
 ```
 
 
@@ -32,6 +33,8 @@ BD_peliculas <- read.csv2("~/Downloads/BD_filmaffinity_top30.csv")
 # Contexto
 
 Filmaffinity es un sitio web español dedicado al cine que cuenta con una gran cantidad de películas, documentales, cortometrajes, mediometrajes y series de televisión. El funcionamiento del sitio web se basa en una puntuación calculada como la media de las puntuaciones recibidas por los usuarios, que además pueden publicar sus críticas. El objetivo de la creación de nuestra base de datos es obtener información relacionada con las películas más destacabales de cada categoria que se encuentra en la página.
+
+Link repositorio: https://github.com/JaimePerez89/WScrapingR
 
 # Título dataset
 La base de datos  recibe el nombre de **BD_filmaffinity_top30** y engloba una serie de variables relacionadas con las películas que se encuentran en el top 30 de cada género de la página Filmaffinity.
@@ -86,22 +89,30 @@ La base de datos engloba películas desde el año 1902 hasta el año 2020, inclu
 
 ## Representación gráfica
 
-```{r representacion grafica general}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+<!-- # ```{r representacion grafica general} -->
+<!-- # # if (!requireNamespace("BiocManager", quietly = TRUE)) -->
+<!-- # #     install.packages("BiocManager") -->
+<!-- #  -->
+<!-- # BiocManager::install("EBImage") -->
+<!-- #  -->
+<!-- # library(EBImage) -->
+<!-- #  -->
+<!-- # img = readImage("~/Downloads/Untitled Document (1).png") -->
+<!-- # display(img, method = "raster") -->
+<!-- # ``` -->
 
-BiocManager::install("EBImage")
 
-library(EBImage)
+<!-- <img src="graph.png"/> -->
 
-img = readImage("~/Downloads/Untitled Document (1).png")
-display(img, method = "raster")
-```
+Ver Figure 1.
+
+![Representación gráfica de la base de datos](graph.png){#id .class width=50% height=50%}
+
 
 ## Análisis de contenidos
 En primer lugar, vamos a obtener los países en los que se obtienen las mejores puntuaciones según los usuarios.
 
-```{r summary bd, warning=FALSE}
+```{r summary bd, echo=FALSE, warning=FALSE}
 bd_pais <- BD_peliculas %>%
   mutate(genero = as.factor(genero_top30)) %>%
   group_by(pais) %>%
@@ -123,7 +134,7 @@ A priori, en la gráfica no se puede observar ningún sesgo o relación entre la
 
 A continuación, vamos a mostrar las 6 mejores categorias en función de la puntuación obtenida.
 
-```{r bd genero}
+```{r bd genero, echo=FALSE}
 bd_genero <- BD_peliculas %>%
   group_by(genero_top30) %>%
   summarize(mean_puntuacion = mean(puntuacion_media), mean_ncriticas = mean(num_criticas), mean_votos = mean(votos)) %>%
@@ -272,6 +283,7 @@ En el segundo tag, y de igual forma que en el caso anterior, el tag más repetid
 
 # Agradecimientos
 
+Especial agradecimiento a Pablo Kurt Verdú Schumann y Daniel Nicolás Aldea, creadores de Filmaffinity, por mantener un portal independiente como éste sin vinculación alguna con ningún grupo mediático. Adicionalmente, nos gustaría agradecer a todas aquellas personas que publican paquetes/vignettes/tutoriales/etc en R y que hacen que su comunidad sea cada día más grande y mejor.
 
 
 # Inspiración

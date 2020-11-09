@@ -7,7 +7,7 @@ El objetivo de este repositorio es dar respuesta a la práctica 1 de la asignatu
 
 # Descripción
 
-La actividad ha sido desarrollada de forma conjunta por Ana Hubel y Jaime Pérez Ordieres. En dicha actividad se aplican técnicas de web scraping mediante el lenguaje de programación R para extraer datos de la página Filmaffinity y crear una base de datos que recoja las características relacionadas con las películas más relevantes según su género.
+La actividad ha sido desarrollada de forma conjunta por Ana Hubel y Jaime Pérez. En dicha actividad se aplican técnicas de web scraping mediante el lenguaje de programación R para extraer datos de la página Filmaffinity y crear una base de datos que recoja las características relacionadas con las películas más relevantes según su género.
 
 El objetivo final será la extracción de los datos características (nombre, pais, género, duración, etiquetas, número de votos, etc.) de las películas y series actualmente en el Top 30 según los géneros a los que pertenecen. De esta forma se espera generar un dataset limpio que será utilizado caracterizar y dar respuesta a una serie de preguntas, como por ejemplo:
 
@@ -31,7 +31,7 @@ En conclusión, la principal pregunta a la que se pretende responder es *¿Está
 * WScraping
     - data_procesos_intermedios: contiene bases de datos intermedias que se han ido limpiando/ajustando hasta llegar a nuestra base de datos final.
     - main.R: fichero que ejecuta todo el proceso de carga y limpieza
-    - scrap.R: contiene el programa que descarga los archivos de la página de imbd
+    - scrap.R: contiene el programa que descarga los archivos de la página de filmaffinity
     - clean_df.R: contiene el código que limpia el dataframe y genera el .csv final
     - results.Rmd: este fichero da respuesta a los principales objetivos y requisitos de la práctica. Se carga y analiza el dataframe limpio. Además, se presenta el contexto en el que se ha recopilado la información, se realizan representaciones gráficas del contenido, estadísticas básicas y descripciones de las variables, resultados de correlaciones, clasificaciones, etc.
     - results.html: documento html en el que se recoge el informe final de la práctica.
